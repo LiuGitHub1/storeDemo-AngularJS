@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="myApp">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="JS/jquery-3.1.1.js"></script>
+    <link rel="stylesheet" href="CSS/bootstrap-theme.css">
+    <link rel="stylesheet" href="CSS/bootstrap.css">
+    <script src="JS/angular.js"></script>
+    <script src="JS/bootstrap.min.js"></script>
+    <script src="JS/jquery.min.js"></script>
+    <script>
+        myApp = angular.module('myApp',[]);
+        myApp.controller('myController', function($scope, myService){
+            var promise = myService.getData();
+            promise.then(function (data) {
+                $scope.result = data;
+                $scope.myData = $scope.result.data;
+                //console.log($scope.myData);
+            });
+
+            $scope.saveContact = function () {
+                myService.save($scope.newData);
+                $scope.newData = {};
+            }
+
+            $scope.removeName = function(row){
+                $scope.myData.splice($scope.myData.indexOf(row),1);
+            }
+
+
+        });
+
+        myApp.service('myService', function( $http, $q){
+            var deferred = $q.defer();
+                $http.get('products.json').then(function(data) {
+                    deferred.resolve(data);
+                })
+            this.getData = function () {
+                return deferred.promise;
+            }
+
+
+           this.save = function (data) {
+               var promise = this.getData();
+               var result;
+               promise.then(function (data2) {
+                   result = data2;
+                   this.myData = result.data;
+                   this.myData.push({'name': data.name, 'description': data.description, 'price': data.price});
+               });
+            }
+            this.list = function () {
+                return myData;
+           }
+        });
+
+    </script>
+
+</head>
+<body >
+<nav class="navbar navbar-default">
+    <div class="container-fluid navbar-inverse">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar">Home</span>
+                <span class="icon-bar">About</span>
+                <span class="icon-bar">Contact</span>
+            </button>
+            <a class="navbar-brand" href="#">Store</a>
+        </div>
+
+<div class="navbar-collapse collapse" id="bs-example-navbar-collapse-1">
+    <ul class="nav navbar-nav ">
+        <li><a  href="~/">Home</a></li>
+        <li><a  href="~/About">About</a></li>
+        <li><a  href="~/Contact">Contact</a></li>
+        <li><a  href="~/ProductList">Catalog</a></li>
+    </ul>
+</div>
+    </div>
+</nav>
+<div id = "container">
+    <div class="col-md-2">
+        <ul class="nav nav-pills nav-stacked">
+            <li><a  href="~/">Home AboutHome</a></li>
+            <li><a  href="~/">AboutHome Contact</a></li>
+            <li><a  href="~/">Contact Catalog</a></li>
+            <li><a  href="~/">Catalog Address</a></li>
+            <li><a  href="~/">Address Home</a></li>
+
+        </ul>
+    </div>
+    <div class="col-md-10" ng-controller="myController">
+        <div id = "inputForm">
+        <form class="form-inline" style="padding-top: 7px">
+            <div class="form-group">
+                <label for="exampleInputName"  class="control-label">Search</label>
+                <input type="text" class="form-control" id="exampleInputName" placeholder="Search by item name" ng-model="search">
+            </div>
+        </form>
+
+        <form class="form-inline" style="padding-top: 7px" ng-submit="saveContact()"  >
+            <div class="form-group">
+                <label for="inputName">Add Item</label>
+                <input type="text" class="form-control" id="inputName" placeholder="Item Name" ng-model="newData.name" >
+                <input type="text" class="form-control" id="inputDescription" placeholder="Description" ng-model="newData.description" >
+                <input type="number" class="form-control" id="inputPrice" placeholder="Price" ng-model="newData.price" >
+                <button type="submit" class="btn btn-default">Add</button>
+            </div>
+        </form>
+        </div>
+        <div id = "showData" style="padding-top: 7px" >
+            <div class="jumbotron" ng-repeat="data in myData | filter : search">
+                <div class = "row">
+                    <div class = "col-sm-8"> <h4>{{data.name}}</h4> </div>
+                    <div class = "col-sm-2"> <p>{{data.price}}</p> </div>
+                    <div class = "col-sm-2">
+                        <button type="button" class="btn btn-default" ng-click = "removeName(data)">
+                            <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                </div>
+                <p>{{data.description}}</p>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+</body>
+</html>
